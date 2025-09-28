@@ -1,0 +1,19 @@
+﻿### Projeto Raiz
+GET http://localhost:5031
+
+### Listar Produtos
+GET http://localhost:5031/api/produtos/listar
+
+### Cadastrar Produto
+POST http://localhost:5031/api/produtos/cadastrar
+Content-Type: application/json
+
+{
+  "nome" : "Mouse x",
+  "quantidade" : 12,
+  "Preco" : 10.99
+}
+
+### Buscar Produto por nome
+GET localhost:5031/api/produto/buscar/Mouse x
+    
