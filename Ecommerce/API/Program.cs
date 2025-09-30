@@ -40,9 +40,9 @@ app.MapGet("/api/produtos/listar", () =>
     return Results.NotFound("Lista Vazia!");
 });
 
-// GET: /api/produto/buscar/nome_do_produto
+// GET: /api/produtos/buscar/nome_do_produto
 
-app.MapGet("/api/produto/buscar/{nome}", (string nome) =>
+app.MapGet("/api/produtos/buscar/{nome}", ([FromRoute]string nome) =>
 {
     // foreach (Produto produtoCadastrado in listaDeProdutos)
     // {
@@ -54,7 +54,7 @@ app.MapGet("/api/produto/buscar/{nome}", (string nome) =>
     //     }
     // }
     //Expressão Lambda
-    Produto resultado = listaDeProdutos.FirstOrDefault(p => p.Nome == nome);
+    Produto? resultado = listaDeProdutos.FirstOrDefault(p => p.Nome == nome);
     if (resultado == null)
     {
     return Results.NotFound("Produto não encontrado!");
@@ -81,6 +81,37 @@ app.MapPost("/api/produtos/cadastrar", ([FromBody]Produto produto) =>
 });
 
 
+// DELETE: /api/produtos/deletar/id
+
+app.MapDelete("/api/produtos/deletar/{id}", ([FromRoute]string id) =>
+{
+    Produto? resultado = listaDeProdutos.FirstOrDefault(p => p.Id == id);
+    if (resultado == null)
+    {
+        return Results.NotFound("Produto não encontrado!");
+    }
+    listaDeProdutos.Remove(resultado);
+    
+    return Results.Ok("Produto removido");
+});
+
+
+// UPDATE: /api/produtos/update/id
+
+app.MapPatch("/api/produtos/alterar/{id}", ([FromRoute]string id, [FromBody]Produto ProdutoAtualizado) =>
+{
+    Produto? resultado = listaDeProdutos.FirstOrDefault(p => p.Id == id);
+    if (resultado == null)
+    {
+        return Results.NotFound("Produto não encontrado!");
+    }
+    
+    resultado.Nome = ProdutoAtualizado.Nome;
+    resultado.Quantidade = ProdutoAtualizado.Quantidade;
+    resultado.Preco = ProdutoAtualizado.Preco;
+    
+    return Results.Ok();
+});
 
 
 produto.Nome = "Nome teste 002";

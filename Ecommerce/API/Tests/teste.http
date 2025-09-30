@@ -9,11 +9,27 @@ POST http://localhost:5031/api/produtos/cadastrar
 Content-Type: application/json
 
 {
-  "nome" : "Mouse x",
+  "nome" : "Mouse",
   "quantidade" : 12,
   "Preco" : 10.99
 }
 
 ### Buscar Produto por nome
-GET localhost:5031/api/produto/buscar/Mouse x
-    
+GET localhost:5031/api/produtos/buscar/Mouse2
+
+
+### Deletar um produto
+
+DELETE http://localhost:5031/api/produtos/deletar/a4e19ec3-0ef4-478a-9d0a-610d91a9890d
+
+
+### Atualizar um produto
+
+PATCH http://localhost:5031/api/produtos/alterar/a4e19ec3-0ef4-478a-9d0a-610d91a9890d
+Content-Type: application/json
+
+{
+  "nome": "Mouse2",
+  "quantidade": 20,
+  "preco": 45.32
+}
