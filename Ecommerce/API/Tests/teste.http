@@ -9,27 +9,27 @@ POST http://localhost:5031/api/produtos/cadastrar
 Content-Type: application/json
 
 {
-  "nome" : "Mouse",
+  "nome" : "Mouse5",
   "quantidade" : 12,
   "Preco" : 10.99
 }
 
 ### Buscar Produto por nome
-GET localhost:5031/api/produtos/buscar/Mouse2
+GET localhost:5031/api/produtos/buscar/Mouse100
 
 
 ### Deletar um produto
 
-DELETE http://localhost:5031/api/produtos/deletar/a4e19ec3-0ef4-478a-9d0a-610d91a9890d
+DELETE http://localhost:5031/api/produtos/deletar/17beb88e-7541-49db-99df-0a8df0b5b8a9
 
 
 ### Atualizar um produto
 
-PATCH http://localhost:5031/api/produtos/alterar/a4e19ec3-0ef4-478a-9d0a-610d91a9890d
+PATCH http://localhost:5031/api/produtos/alterar/8f2d970f-a31c-4299-b844-d7ce88c960d0
 Content-Type: application/json
 
 {
-  "nome": "Mouse2",
+  "nome": "Mouse100",
   "quantidade": 20,
   "preco": 45.32
 }

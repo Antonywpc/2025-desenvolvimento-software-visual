@@ -2,6 +2,7 @@ using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<AppDataContext>();
 var app = builder.Build();
 
 //Funcionalidade - Requisições
@@ -29,89 +30,85 @@ List<Produto> listaDeProdutos = new List<Produto>();
 
 
 // GET: /api/produtos/listar
-app.MapGet("/api/produtos/listar", () =>
+app.MapGet("/api/produtos/listar", ([FromServices] AppDataContext dbContext) =>
 {
     //Validar a lista de produtos para saber
     //se existe algo dentro
-    if (listaDeProdutos.Any())
+    if (dbContext.Produtos.Any())
     {
-        return Results.Ok(listaDeProdutos);
+        return Results.Ok(dbContext.Produtos.ToList());
     }
     return Results.NotFound("Lista Vazia!");
 });
 
 // GET: /api/produtos/buscar/nome_do_produto
 
-app.MapGet("/api/produtos/buscar/{nome}", ([FromRoute]string nome) =>
+app.MapGet("/api/produtos/buscar/{nome}", ([FromRoute] string nome, [FromServices] AppDataContext dbContext) =>
 {
-    // foreach (Produto produtoCadastrado in listaDeProdutos)
-    // {
-    //     if (produtoCadastrado.Nome == nome)
-    //     {
-    //         //Produto localizado
-    //         return Results.Ok(produtoCadastrado);
-    //         
-    //     }
-    // }
-    //Expressão Lambda
-    Produto? resultado = listaDeProdutos.FirstOrDefault(p => p.Nome == nome);
-    if (resultado == null)
-    {
-    return Results.NotFound("Produto não encontrado!");
-    }
-    return Results.Ok(resultado);
+    var produto = dbContext.Produtos
+        .FirstOrDefault(p => p.Nome.ToLower() == nome.ToLower());
+
+    if (produto == null)
+        return Results.NotFound("Produto não encontrado!");
+
+    return Results.Ok(produto);
 });
+
     
 
 // POST: /api/produtos/cadastrar
 
-app.MapPost("/api/produtos/cadastrar", ([FromBody]Produto produto) =>
+app.MapPost("/api/produtos/cadastrar", ([FromBody]Produto produto, [FromServices] AppDataContext dbContext) =>
 {
     //Não permitir o cadastro de um produto com o mesmo nome
-    foreach (Produto produtoCadastrado in listaDeProdutos)
+
+    Produto? resultado = dbContext.Produtos.FirstOrDefault(p => p.Nome == produto.Nome);
+    if (resultado == null)
     {
-        if (produtoCadastrado.Nome == produto.Nome)
-        {
-            //Não posso cadastrar
-            return Results.Conflict("Produto já cadastrado");
-        }
+        dbContext.Produtos.Add(produto);
+        dbContext.SaveChanges();
+        return Results.Created("api/produtos/cadastrar", produto);
     }
-    listaDeProdutos.Add(produto);
-    return Results.Created("api/produtos/cadastrar", produto);
+    return Results.Conflict("Produto já cadastrado!");
+    
 });
 
 
 // DELETE: /api/produtos/deletar/id
 
-app.MapDelete("/api/produtos/deletar/{id}", ([FromRoute]string id) =>
+app.MapPatch("/api/produtos/alterar/{id:int}", ([FromRoute] int id, [FromBody] Produto produtoAtualizado, [FromServices] AppDataContext dbContext) =>
 {
-    Produto? resultado = listaDeProdutos.FirstOrDefault(p => p.Id == id);
-    if (resultado == null)
-    {
+    var produto = dbContext.Produtos.Find(id);
+    if (produto == null)
         return Results.NotFound("Produto não encontrado!");
-    }
-    listaDeProdutos.Remove(resultado);
-    
-    return Results.Ok("Produto removido");
+
+    produto.Nome = produtoAtualizado.Nome;
+    produto.Quantidade = produtoAtualizado.Quantidade;
+    produto.Preco = produtoAtualizado.Preco;
+
+    dbContext.SaveChanges();
+
+    return Results.Ok($"Produto '{produto.Nome}' atualizado com sucesso!");
 });
+
+
 
 
 // UPDATE: /api/produtos/update/id
 
-app.MapPatch("/api/produtos/alterar/{id}", ([FromRoute]string id, [FromBody]Produto ProdutoAtualizado) =>
-{
-    Produto? resultado = listaDeProdutos.FirstOrDefault(p => p.Id == id);
-    if (resultado == null)
+app.MapPatch("/api/produtos/alterar/{id:int}", 
+    ([FromRoute] int id, [FromBody] Produto produtoAtualizado, [FromServices] AppDataContext dbContext) =>
     {
-        return Results.NotFound("Produto não encontrado!");
-    }
-    
-    resultado.Nome = ProdutoAtualizado.Nome;
-    resultado.Quantidade = ProdutoAtualizado.Quantidade;
-    resultado.Preco = ProdutoAtualizado.Preco;
-    
-    return Results.Ok();
-});
+        var produto = dbContext.Produtos.Find(id); // usa a PK diretamente
+        if (produto == null) return Results.NotFound("Produto não encontrado!");
+
+        produto.Nome = produtoAtualizado.Nome;
+        produto.Quantidade = produtoAtualizado.Quantidade;
+        produto.Preco = produtoAtualizado.Preco;
+
+        dbContext.SaveChanges();
+        return Results.Ok(produto);
+    });
 
 
 produto.Nome = "Nome teste 002";
