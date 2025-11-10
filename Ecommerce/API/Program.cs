@@ -3,7 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDataContext>();
+builder.Services.AddCors(
+    options => options.AddPolicy("Acesso Total",
+    configs => configs.AllowAnyOrigin().AllowAnyHeader().AllowAnyHeader())
+    );
 var app = builder.Build();
+
 
 //Funcionalidade - Requisições
 // - URL/Caminho/Endereço
@@ -114,4 +119,5 @@ app.MapPatch("/api/produtos/alterar/{id:int}",
 produto.Nome = "Nome teste 002";
 Console.WriteLine(produto.Id);
 
+app.UseCors("Acesso Total");
 app.Run();
